@@ -60,12 +60,15 @@ namespace SteamOpenIdConnectProvider
 
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
+            // See: https://kevinchalet.com/2020/02/18/creating-an-openid-connect-server-proxy-with-openiddict-3-0-s-degraded-mode/
+            // Try: https://github.com/aspnet/Security/issues/1755#issuecomment-388950356
+            // Try fix SameSite:  https://stackoverflow.com/a/51671538/3254208
             services.AddAuthentication()
-                // .AddCookie(options =>
-                // {
-                //     options.Cookie.SameSite = SameSiteMode.Strict;
-                //     options.Cookie.IsEssential = true;
-                // })
+                .AddCookie(options =>
+                {
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.SameSite = SameSiteMode.None;
+                })
                 .AddSteam(options =>
                 {
                     options.ApplicationKey = Configuration["Authentication:Steam:ApplicationKey"];
@@ -116,6 +119,13 @@ namespace SteamOpenIdConnectProvider
             {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/health");
+            });
+
+            // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
+            app.UseCookiePolicy(new CookiePolicyOptions
+            {
+                MinimumSameSitePolicy = SameSiteMode.None,
+                Secure = CookieSecurePolicy.Always
             });
         }
     }
