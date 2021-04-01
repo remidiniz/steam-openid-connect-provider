@@ -61,11 +61,11 @@ namespace SteamOpenIdConnectProvider
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
             services.AddAuthentication()
-                .AddCookie(options =>
-                {
-                    options.Cookie.SameSite = SameSiteMode.Strict;
-                    options.Cookie.IsEssential = true;
-                })
+                // .AddCookie(options =>
+                // {
+                //     options.Cookie.SameSite = SameSiteMode.Strict;
+                //     options.Cookie.IsEssential = true;
+                // })
                 .AddSteam(options =>
                 {
                     options.ApplicationKey = Configuration["Authentication:Steam:ApplicationKey"];
