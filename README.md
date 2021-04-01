@@ -6,6 +6,12 @@ Steam OpenID 2.0 -> OpenID Connect Provider Proxy
 
 This server allows you to use Steam as an OpenID Connect Identity provider (OIDC IDP). This way you can use Steam logins in KeyCloak or any other OpenID Connect based authentication client.
 
+FORK NOTES:
+
+- ~~fixes `Hosting__PathBase`~~
+- fixes `AllowedHost` ? (TODO: need to confirm this really needs a fix...)
+- fixes the `anti-forgery` error because the cookie is not found
+
 ## Setup
 
 Add your Steam API Key as user-secrets like this:
