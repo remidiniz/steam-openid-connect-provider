@@ -8,7 +8,7 @@ namespace SteamOpenIdConnectProvider
 {
     public class IdentityServerConfig
     {
-        public static IEnumerable<Client> GetClients(string clientId, string secret, string redirectUri, string logoutRedirectUri)
+        public static IEnumerable<Client> GetClients(string clientId, string secret, string redirectUri, string logoutRedirectUri, string allowedHost)
         {
             yield return new Client
             {
@@ -31,7 +31,15 @@ namespace SteamOpenIdConnectProvider
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                }
+                },
+
+                // See: http://docs.identityserver.io/en/latest/quickstarts/6_aspnet_identity.html
+                // http://docs.identityserver.io/en/latest/topics/cors.html
+                // TODO: check if this is working....
+                AllowedCorsOrigins = new List<string>
+                {
+                    allowedHost
+                }     
             };
         }
 

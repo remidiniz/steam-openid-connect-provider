@@ -52,7 +52,8 @@ namespace SteamOpenIdConnectProvider
                     Configuration["OpenID:ClientID"],
                     Configuration["OpenID:ClientSecret"],
                     Configuration["OpenID:RedirectUri"],
-                    Configuration["OpenID:PostLogoutRedirectUri"]))
+                    Configuration["OpenID:PostLogoutRedirectUri"],
+                    Configuration["OpenID:AllowedHost"]))
                 .AddInMemoryPersistedGrants()
                 .AddDeveloperSigningCredential(true)
                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources());
@@ -86,7 +87,8 @@ namespace SteamOpenIdConnectProvider
                 app.UsePathBase(Configuration["Hosting:PathBase"]);
             }
 
-            app.UseCookiePolicy();
+            // TODO: try without cookie policy (might not be the best idea, it is just a test: try to configure it properly fore security reasons)
+            // app.UseCookiePolicy();
             app.Use(async (ctx, next) =>
             {
                 var origin = Configuration["Hosting:PublicOrigin"];
