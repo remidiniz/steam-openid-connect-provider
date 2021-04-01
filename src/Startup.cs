@@ -91,7 +91,7 @@ namespace SteamOpenIdConnectProvider
             }
 
             // TODO: try without cookie policy (might not be the best idea, it is just a test: try to configure it properly fore security reasons)
-            // app.UseCookiePolicy();
+            app.UseCookiePolicy();
             app.Use(async (ctx, next) =>
             {
                 var origin = Configuration["Hosting:PublicOrigin"];
