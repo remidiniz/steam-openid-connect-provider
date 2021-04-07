@@ -60,15 +60,23 @@ namespace SteamOpenIdConnectProvider
 
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
-            // See: https://kevinchalet.com/2020/02/18/creating-an-openid-connect-server-proxy-with-openiddict-3-0-s-degraded-mode/
-            // Try: https://github.com/aspnet/Security/issues/1755#issuecomment-388950356
-            // Try fix SameSite:  https://stackoverflow.com/a/51671538/3254208
             services.AddAuthentication()
-                .AddCookie(options =>
-                {
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.SameSite = SameSiteMode.None;
-                })
+            // TODO: remove AddCookie if confirmed useless
+                // .AddCookie(options =>
+                // {
+                //     options.Cookie.SameSite = SameSiteMode.Strict;
+                //     options.Cookie.IsEssential = true;
+                // })
+                // .AddCookie(options =>
+                // {
+                //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                //     options.Cookie.SameSite = SameSiteMode.None;
+                // })
+                // .AddCookie(options =>
+                // {
+                //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                //     options.Cookie.SameSite = SameSiteMode.Lax;
+                // })
                 .AddSteam(options =>
                 {
                     options.ApplicationKey = Configuration["Authentication:Steam:ApplicationKey"];
@@ -80,18 +88,29 @@ namespace SteamOpenIdConnectProvider
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Fix the Cookie SameSitePolicy
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+                app.UseCookiePolicy(new CookiePolicyOptions
+                {
+                    MinimumSameSitePolicy = SameSiteMode.None,
+                    Secure = CookieSecurePolicy.Always
+                });
+            } else {
+                app.UseCookiePolicy(new CookiePolicyOptions
+                {
+                    MinimumSameSitePolicy = SameSiteMode.Lax,
+                    Secure = CookieSecurePolicy.Always
+                });
             }
 
             if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
             {
                 app.UsePathBase(Configuration["Hosting:PathBase"]);
             }
-
-            // TODO: try without cookie policy (might not be the best idea, it is just a test: try to configure it properly fore security reasons)
-            app.UseCookiePolicy();
+            
             app.Use(async (ctx, next) =>
             {
                 var origin = Configuration["Hosting:PublicOrigin"];
@@ -119,13 +138,6 @@ namespace SteamOpenIdConnectProvider
             {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/health");
-            });
-
-            // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
-            app.UseCookiePolicy(new CookiePolicyOptions
-            {
-                MinimumSameSitePolicy = SameSiteMode.None,
-                Secure = CookieSecurePolicy.Always
             });
         }
     }
