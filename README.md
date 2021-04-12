@@ -11,9 +11,11 @@ FORK NOTES:
 - ~~fixes `Hosting__PathBase`~~
 - fixes `AllowedHost` ? (TODO: need to confirm this really needs a fix...)
 - fixes the `anti-forgery` cookie SameSite error:
-  - https://cookie-script.com/documentation/samesite-cookie-attribute-explained#:~:text=SameSite%20cookie%20attribute%20is%20used,depending%20on%20attribute%20and%20scenario.
-  - https://auth0.com/docs/sessions/cookies/samesite-cookie-attribute-changes
-  - https://github.com/aspnet-contrib/AspNet.Security.OpenId.Providers/issues/79#issuecomment-604977562
+  - Solution: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+  - Additional infos:
+    - https://github.com/aspnet-contrib/AspNet.Security.OpenId.Providers/issues/79#issuecomment-604977562
+    - https://cookie-script.com/documentation/samesite-cookie-attribute-explained#:~:text=SameSite%20cookie%20attribute%20is%20used,depending%20on%20attribute%20and%20scenario.
+    - https://auth0.com/docs/sessions/cookies/samesite-cookie-attribute-changes
 
 ## Setup
 

@@ -14,6 +14,9 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using SteamOpenIdConnectProvider.Database;
 using SteamOpenIdConnectProvider.Profile;
+// // using Microsoft.Owin.Security.OpenIdConnect;
+// using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+// using Microsoft.Owin.Host.SystemWeb;
 
 namespace SteamOpenIdConnectProvider
 {
@@ -28,6 +31,16 @@ namespace SteamOpenIdConnectProvider
 
         public void ConfigureServices(IServiceCollection services)
         {
+
+            // services.Configure<CookiePolicyOptions>(options =>
+            // {
+            //     options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+            //     options.OnAppendCookie = cookieContext => 
+            //         CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+            //     options.OnDeleteCookie = cookieContext => 
+            //         CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+            // });
+
             services.AddControllers()
                 .AddNewtonsoftJson()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -61,6 +74,19 @@ namespace SteamOpenIdConnectProvider
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
             services.AddAuthentication()
+            .AddCookie(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.None;
+            })
+            // .AddCookie(new SameSiteCookieManager(new SystemWebCookieManager()))
+            // .AddOpenIdConnect(
+            //     // new OpenIdConnectAuthenticationOptions
+            //     new OpenIdConnectOptions
+            //     {
+            //     // … Your preexisting options … 
+            //     CookieManager = new SameSiteCookieManager(new SystemWebCookieManager())
+            // })
             // TODO: remove AddCookie if confirmed useless
                 // .AddCookie(options =>
                 // {
@@ -93,18 +119,26 @@ namespace SteamOpenIdConnectProvider
             {
                 app.UseDeveloperExceptionPage();
 
-                app.UseCookiePolicy(new CookiePolicyOptions
-                {
-                    MinimumSameSitePolicy = SameSiteMode.None,
-                    Secure = CookieSecurePolicy.Always
-                });
-            } else {
+                // app.UseCookiePolicy(new CookiePolicyOptions
+                // {
+                //     MinimumSameSitePolicy = SameSiteMode.None,
+                //     Secure = CookieSecurePolicy.Always
+                // });
+            } /* else {
                 app.UseCookiePolicy(new CookiePolicyOptions
                 {
                     MinimumSameSitePolicy = SameSiteMode.Lax,
                     Secure = CookieSecurePolicy.Always
                 });
-            }
+            } */
+
+            // app.UseCookiePolicy();
+            // app.UseOpenIdConnectAuthentication(
+            //     new OpenIdConnectAuthenticationOptions
+            //     {
+            //     // … Your preexisting options … 
+            //     CookieManager = new SameSiteCookieManager(new SystemWebCookieManager())
+            // });
 
             if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
             {
@@ -139,6 +173,28 @@ namespace SteamOpenIdConnectProvider
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/health");
             });
+
+            // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
+            app.UseCookiePolicy(new CookiePolicyOptions
+            {
+                MinimumSameSitePolicy = SameSiteMode.None,
+                Secure = CookieSecurePolicy.Always
+            });
         }
+
+        // private void CheckSameSite(HttpContext httpContext, CookieOptions options)
+        // {
+        //     if (options.SameSite == SameSiteMode.None)
+        //     {
+        //         var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+
+        //         // If UserAgent doesn’t support new behavior 
+        //         if(SameSiteCookieManager.DisallowsSameSiteNone(userAgent)) {
+        //             // options.SameSite = (SameSiteMode)(-1);
+        //             options.SameSite = SameSiteMode.Unspecified;
+        //         }
+        //     }
+        // }
+
     }
 }
