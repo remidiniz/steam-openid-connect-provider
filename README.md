@@ -16,6 +16,7 @@ FORK NOTES:
     - https://github.com/aspnet-contrib/AspNet.Security.OpenId.Providers/issues/79#issuecomment-604977562
     - https://cookie-script.com/documentation/samesite-cookie-attribute-explained#:~:text=SameSite%20cookie%20attribute%20is%20used,depending%20on%20attribute%20and%20scenario.
     - https://auth0.com/docs/sessions/cookies/samesite-cookie-attribute-changes
+    - https://www.thinktecture.com/en/identity/samesite/prepare-your-identityserver/
 
 ## Setup
 

@@ -74,6 +74,13 @@ namespace SteamOpenIdConnectProvider
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
             services.AddAuthentication()
+            .AddCookie(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.IsEssential = true;
+            })
+
             //// Seems useless ? (at leaast for local tests...)
             // .AddCookie(options =>
             // {
@@ -116,16 +123,20 @@ namespace SteamOpenIdConnectProvider
             {
                 app.UsePathBase(Configuration["Hosting:PathBase"]);
             }
-
+            // Add this before any other middleware that might write cookies
             // app.UseCookiePolicy();
-
             // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
             app.UseCookiePolicy(new CookiePolicyOptions
             {
-                MinimumSameSitePolicy = SameSiteMode.Lax, 
-                // MinimumSameSitePolicy = SameSiteMode.None,
+                // MinimumSameSitePolicy = SameSiteMode.Lax, 
+                MinimumSameSitePolicy = SameSiteMode.None,
                 Secure = CookieSecurePolicy.Always
             });
+
+            // This will write cookies, so make sure it's after the cookie policy
+            app.UseAuthentication();
+
+
             
             app.Use(async (ctx, next) =>
             {
