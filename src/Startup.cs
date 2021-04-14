@@ -92,7 +92,7 @@ namespace SteamOpenIdConnectProvider
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.IsEssential = true;
-                options.Cookie.Path = "/steam-oidc-provider/signin-steam";
+                // options.Cookie.Path = "/steam-oidc-provider/signin-steam";
             })
 
             //// Seems useless ? (at leaast for local tests...)
@@ -142,10 +142,10 @@ namespace SteamOpenIdConnectProvider
             {
                 app.UseDeveloperExceptionPage();
             }
-            if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
-            {
-                app.UsePathBase(Configuration["Hosting:PathBase"]);
-            }
+            // if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
+            // {
+            //     app.UsePathBase(Configuration["Hosting:PathBase"]);
+            // }
 
 
             // Add this before any other middleware that might write cookies
@@ -183,10 +183,15 @@ namespace SteamOpenIdConnectProvider
             
             app.Use(async (ctx, next) =>
             {
-                var origin = Configuration["Hosting:PublicOrigin"];
-                if (!string.IsNullOrEmpty(origin))
+                if (!string.IsNullOrEmpty(Configuration["Hosting:PublicOrigin"]))
                 {
-                    ctx.SetIdentityServerOrigin(origin);
+                    ctx.SetIdentityServerOrigin(Configuration["Hosting:PublicOrigin"]);
+                }
+
+                // https://stackoverflow.com/a/45312462/3254208
+                if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
+                {
+                    ctx.Request.PathBase = Configuration["Hosting:PathBase"];
                 }
 
                 await next();
