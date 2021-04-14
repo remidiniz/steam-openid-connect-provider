@@ -92,6 +92,7 @@ namespace SteamOpenIdConnectProvider
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.IsEssential = true;
+                options.Cookie.Path = "/steam-oidc-provider/signin-steam";
             })
 
             //// Seems useless ? (at leaast for local tests...)
