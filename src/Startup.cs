@@ -18,6 +18,9 @@ using SteamOpenIdConnectProvider.Profile;
 // using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 // using Microsoft.Owin.Host.SystemWeb;
 
+// for Cookies
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 namespace SteamOpenIdConnectProvider
 {
     public class Startup
@@ -34,6 +37,7 @@ namespace SteamOpenIdConnectProvider
             // This fixes old browsers behaviour: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
             services.Configure<CookiePolicyOptions>(options =>
             {
+                options.Secure = CookieSecurePolicy.Always;
                 options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
                 options.OnAppendCookie = cookieContext => 
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
@@ -73,7 +77,16 @@ namespace SteamOpenIdConnectProvider
 
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
-            services.AddAuthentication()
+
+            // See: https://kevinchalet.com/2020/02/18/creating-an-openid-connect-server-proxy-with-openiddict-3-0-s-degraded-mode/
+            // Try: https://github.com/aspnet/Security/issues/1755#issuecomment-388950356
+            // Try fix SameSite:  https://stackoverflow.com/a/51671538/3254208
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            // services.AddAuthentication(authOptions =>
+            // {
+            //     authOptions.DefaultScheme = "cookies";
+            //     authOptions.DefaultChallengeScheme = "oidc";
+            // })
             .AddCookie(options =>
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -114,29 +127,58 @@ namespace SteamOpenIdConnectProvider
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var forwardOptions = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+                RequireHeaderSymmetry = false
+            };
+            forwardOptions.KnownNetworks.Clear();
+            forwardOptions.KnownProxies.Clear();
+            app.UseForwardedHeaders(forwardOptions);
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
             if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
             {
                 app.UsePathBase(Configuration["Hosting:PathBase"]);
             }
+
+
             // Add this before any other middleware that might write cookies
             // app.UseCookiePolicy();
-            // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
             app.UseCookiePolicy(new CookiePolicyOptions
             {
-                // MinimumSameSitePolicy = SameSiteMode.Lax, 
-                MinimumSameSitePolicy = SameSiteMode.None,
-                Secure = CookieSecurePolicy.Always
+                Secure = CookieSecurePolicy.Always,
+                // MinimumSameSitePolicy = SameSiteMode.None,
+                MinimumSameSitePolicy = SameSiteMode.Unspecified,
+                OnAppendCookie = cookieContext => 
+                    CheckSameSite(cookieContext.Context, cookieContext.CookieOptions),
+                OnDeleteCookie = cookieContext => 
+                    CheckSameSite(cookieContext.Context, cookieContext.CookieOptions)
             });
-
             // This will write cookies, so make sure it's after the cookie policy
             app.UseAuthentication();
-
-
+            // app.UseAuthorization();
+            
+            // app.UseCookiePolicy(new CookiePolicyOptions
+            // {
+            //     MinimumSameSitePolicy = SameSiteMode.Unspecified,
+            //     Secure = CookieSecurePolicy.Always,
+            //     OnAppendCookie = cookieContext => 
+            //         CheckSameSite(cookieContext.Context, cookieContext.CookieOptions),
+            //     OnDeleteCookie = cookieContext => 
+            //         CheckSameSite(cookieContext.Context, cookieContext.CookieOptions)
+            // });
+            // // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
+            // app.UseCookiePolicy(new CookiePolicyOptions
+            // {
+            //     // MinimumSameSitePolicy = SameSiteMode.Lax, 
+            //     MinimumSameSitePolicy = SameSiteMode.Lax,
+            //     Secure = CookieSecurePolicy.Always
+            // });
             
             app.Use(async (ctx, next) =>
             {
@@ -149,16 +191,6 @@ namespace SteamOpenIdConnectProvider
                 await next();
             });
 
-            var forwardOptions = new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-                RequireHeaderSymmetry = false
-            };
-
-            forwardOptions.KnownNetworks.Clear();
-            forwardOptions.KnownProxies.Clear();
-
-            app.UseForwardedHeaders(forwardOptions);
             app.UseRouting();
             app.UseIdentityServer();
             app.UseEndpoints(endpoints =>
