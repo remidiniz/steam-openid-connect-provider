@@ -24,11 +24,6 @@
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-
-    <!-- <PackageReference Include="Microsoft.Owin" Version="4.1.1" />
-    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.14" /> 
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.0.0" /> -->
   </ItemGroup>
 
 </Project>

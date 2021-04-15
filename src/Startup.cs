@@ -14,11 +14,6 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using SteamOpenIdConnectProvider.Database;
 using SteamOpenIdConnectProvider.Profile;
-// // using Microsoft.Owin.Security.OpenIdConnect;
-// using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-// using Microsoft.Owin.Host.SystemWeb;
-
-// for Cookies
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace SteamOpenIdConnectProvider
@@ -75,25 +70,20 @@ namespace SteamOpenIdConnectProvider
                 .AddDeveloperSigningCredential(true)
                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources());
 
-            // services.AddScoped<IProfileService, SteamProfileService>();
+            services.AddScoped<IProfileService, SteamProfileService>();
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
-
-            // See: https://kevinchalet.com/2020/02/18/creating-an-openid-connect-server-proxy-with-openiddict-3-0-s-degraded-mode/
-            // Try: https://github.com/aspnet/Security/issues/1755#issuecomment-388950356
-            // Try fix SameSite:  https://stackoverflow.com/a/51671538/3254208
-            // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) // TODO: check if this is really necessary ???
-            services.AddAuthentication() // IF NOT RE-ENABLE THIS LINE
+            services.AddAuthentication()
             .AddCookie(options =>
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.IsEssential = true;
             })
-                .AddSteam(options =>
-                {
-                    options.ApplicationKey = Configuration["Authentication:Steam:ApplicationKey"];
-                });
+            .AddSteam(options =>
+            {
+                options.ApplicationKey = Configuration["Authentication:Steam:ApplicationKey"];
+            });
 
             services.AddHealthChecks()
                 .AddUrlGroup(new Uri("https://steamcommunity.com/openid"), "Steam");
@@ -110,16 +100,10 @@ namespace SteamOpenIdConnectProvider
             forwardOptions.KnownProxies.Clear();
             app.UseForwardedHeaders(forwardOptions);
 
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            // if (!string.IsNullOrEmpty(Configuration["Hosting:PathBase"]))
-            // {
-            //     app.UsePathBase(Configuration["Hosting:PathBase"]);
-            // }
-
 
             // Add this before any other middleware that might write cookies
             app.UseCookiePolicy(new CookiePolicyOptions
@@ -131,26 +115,9 @@ namespace SteamOpenIdConnectProvider
                 OnDeleteCookie = cookieContext => 
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions)
             });
+
             // This will write cookies, so make sure it's after the cookie policy
             app.UseAuthentication();
-            // app.UseAuthorization();
-            
-            // app.UseCookiePolicy(new CookiePolicyOptions
-            // {
-            //     MinimumSameSitePolicy = SameSiteMode.Unspecified,
-            //     Secure = CookieSecurePolicy.Always,
-            //     OnAppendCookie = cookieContext => 
-            //         CheckSameSite(cookieContext.Context, cookieContext.CookieOptions),
-            //     OnDeleteCookie = cookieContext => 
-            //         CheckSameSite(cookieContext.Context, cookieContext.CookieOptions)
-            // });
-            // // Fix SameSite: https://stackoverflow.com/a/51671538/3254208
-            // app.UseCookiePolicy(new CookiePolicyOptions
-            // {
-            //     // MinimumSameSitePolicy = SameSiteMode.Lax, 
-            //     MinimumSameSitePolicy = SameSiteMode.Lax,
-            //     Secure = CookieSecurePolicy.Always
-            // });
             
             app.Use(async (ctx, next) =>
             {
