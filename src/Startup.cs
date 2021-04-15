@@ -83,7 +83,7 @@ namespace SteamOpenIdConnectProvider
             // Try: https://github.com/aspnet/Security/issues/1755#issuecomment-388950356
             // Try fix SameSite:  https://stackoverflow.com/a/51671538/3254208
             // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) // TODO: check if this is really necessary ???
-            .AddAuthentication() // IF NOT RE-ENABLE THIS LINE
+            services.AddAuthentication() // IF NOT RE-ENABLE THIS LINE
             .AddCookie(options =>
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
