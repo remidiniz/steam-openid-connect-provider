@@ -60,6 +60,7 @@ namespace SteamOpenIdConnectProvider
                     options.UserInteraction.LoginUrl = "/ExternalLogin";
                 })
                 .AddAspNetIdentity<IdentityUser>()
+                .AddProfileService<SteamProfileService>()
                 .AddInMemoryClients(IdentityServerConfig.GetClients(
                     Configuration["OpenID:ClientID"],
                     Configuration["OpenID:ClientSecret"],
@@ -70,7 +71,7 @@ namespace SteamOpenIdConnectProvider
                 .AddDeveloperSigningCredential(true)
                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources());
 
-            services.AddScoped<IProfileService, SteamProfileService>();
+            services.AddScoped<IProfileService, SteamProfileService>(); // TODO: remove if Useless ?!
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
             services.AddAuthentication()
