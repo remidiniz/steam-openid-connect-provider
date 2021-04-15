@@ -75,48 +75,21 @@ namespace SteamOpenIdConnectProvider
                 .AddDeveloperSigningCredential(true)
                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources());
 
+            // services.AddScoped<IProfileService, SteamProfileService>();
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
 
             // See: https://kevinchalet.com/2020/02/18/creating-an-openid-connect-server-proxy-with-openiddict-3-0-s-degraded-mode/
             // Try: https://github.com/aspnet/Security/issues/1755#issuecomment-388950356
             // Try fix SameSite:  https://stackoverflow.com/a/51671538/3254208
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            // services.AddAuthentication(authOptions =>
-            // {
-            //     authOptions.DefaultScheme = "cookies";
-            //     authOptions.DefaultChallengeScheme = "oidc";
-            // })
+            // services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) // TODO: check if this is really necessary ???
+            .AddAuthentication() // IF NOT RE-ENABLE THIS LINE
             .AddCookie(options =>
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.IsEssential = true;
-                // options.Cookie.Path = "/steam-oidc-provider/signin-steam";
             })
-
-            //// Seems useless ? (at leaast for local tests...)
-            // .AddCookie(options =>
-            // {
-            //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            //     options.Cookie.SameSite = SameSiteMode.None;
-            // })
-            // TODO: remove AddCookie if confirmed useless
-                // .AddCookie(options =>
-                // {
-                //     options.Cookie.SameSite = SameSiteMode.Strict;
-                //     options.Cookie.IsEssential = true;
-                // })
-                // .AddCookie(options =>
-                // {
-                //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                //     options.Cookie.SameSite = SameSiteMode.None;
-                // })
-                // .AddCookie(options =>
-                // {
-                //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                //     options.Cookie.SameSite = SameSiteMode.Lax;
-                // })
                 .AddSteam(options =>
                 {
                     options.ApplicationKey = Configuration["Authentication:Steam:ApplicationKey"];
@@ -149,11 +122,9 @@ namespace SteamOpenIdConnectProvider
 
 
             // Add this before any other middleware that might write cookies
-            // app.UseCookiePolicy();
             app.UseCookiePolicy(new CookiePolicyOptions
             {
                 Secure = CookieSecurePolicy.Always,
-                // MinimumSameSitePolicy = SameSiteMode.None,
                 MinimumSameSitePolicy = SameSiteMode.Unspecified,
                 OnAppendCookie = cookieContext => 
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions),
