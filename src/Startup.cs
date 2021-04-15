@@ -71,6 +71,9 @@ namespace SteamOpenIdConnectProvider
                 .AddDeveloperSigningCredential(true)
                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources());
 
+            // Required for custom claims in our token using our custom IProfileService
+            services.AddTransient<IProfileService, SteamProfileService>();
+
             services.AddScoped<IProfileService, SteamProfileService>(); // TODO: remove if Useless ?!
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
