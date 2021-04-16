@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;  
 using IdentityServer4;
 using IdentityServer4.Models;
+using IdentityModel;
 
 namespace SteamOpenIdConnectProvider
 {
@@ -49,6 +50,18 @@ namespace SteamOpenIdConnectProvider
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile()
+            };
+        }
+
+        // scopes define the API resources in your system
+        // See: https://stackoverflow.com/a/44932837/3254208
+        // https://docs.identityserver.io/en/latest/reference/api_resource.html
+        // https://github.com/IdentityModel/IdentityModel/blob/main/src/JwtClaimTypes.cs
+        public static IEnumerable<ApiResource> GetApiResources()
+        {
+            return new List<ApiResource>
+            {
+                new ApiResource("api", "Api", new[] { JwtClaimTypes.Subject, JwtClaimTypes.Name , JwtClaimTypes.NickName, JwtClaimTypes.Picture  })
             };
         }
     }
