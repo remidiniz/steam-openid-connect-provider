@@ -89,8 +89,7 @@ namespace SteamOpenIdConnectProvider
             //     .AddProfileService<ProfileService>();
 
             // Required for custom claims in our token using our custom IProfileService
-            // services.AddTransient<IProfileService, SteamProfileService>(); //TODO: remove because we shouldn't use it ? https://stackoverflow.com/questions/44761058/how-to-add-custom-claims-to-access-token-in-identityserver4/44822276#44822276
-
+            services.AddTransient<IProfileService, SteamProfileService>(); //TODO: remove because we shouldn't use it ? https://stackoverflow.com/questions/44761058/how-to-add-custom-claims-to-access-token-in-identityserver4/44822276#44822276
             services.AddScoped<IProfileService, SteamProfileService>(); // TODO: remove if Useless ?!
             services.AddHttpClient<IProfileService, SteamProfileService>();
 
