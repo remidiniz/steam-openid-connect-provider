@@ -31,8 +31,8 @@ namespace SteamOpenIdConnectProvider
                 AllowedScopes = new List<string>
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
-                    "api"
+                    IdentityServerConstants.StandardScopes.Profile/* ,
+                    "api" */
                 },
 
                 // See: http://docs.identityserver.io/en/latest/quickstarts/6_aspnet_identity.html
@@ -54,16 +54,16 @@ namespace SteamOpenIdConnectProvider
             };
         }
 
-        // scopes define the API resources in your system
-        // See: https://stackoverflow.com/a/44932837/3254208
-        // https://docs.identityserver.io/en/latest/reference/api_resource.html
-        // https://github.com/IdentityModel/IdentityModel/blob/main/src/JwtClaimTypes.cs
-        public static IEnumerable<ApiResource> GetApiResources()
-        {
-            return new List<ApiResource>
-            {
-                new ApiResource("api", "Api", new[] { JwtClaimTypes.Subject, JwtClaimTypes.Name , JwtClaimTypes.NickName, JwtClaimTypes.Picture  })
-            };
-        }
+        // // scopes define the API resources in your system
+        // // See: https://stackoverflow.com/a/44932837/3254208
+        // // https://docs.identityserver.io/en/latest/reference/api_resource.html
+        // // https://github.com/IdentityModel/IdentityModel/blob/main/src/JwtClaimTypes.cs
+        // public static IEnumerable<ApiResource> GetApiResources()
+        // {
+        //     return new List<ApiResource>
+        //     {
+        //         new ApiResource("api", "Api", new[] { JwtClaimTypes.Subject, JwtClaimTypes.Name , JwtClaimTypes.NickName, JwtClaimTypes.Picture  })
+        //     };
+        // }
     }
 }
