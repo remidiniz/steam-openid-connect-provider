@@ -32,6 +32,7 @@ namespace SteamOpenIdConnectProvider
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
+                    "api"
                 },
 
                 // See: http://docs.identityserver.io/en/latest/quickstarts/6_aspnet_identity.html
