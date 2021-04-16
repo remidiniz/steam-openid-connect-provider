@@ -48,7 +48,7 @@ namespace SteamOpenIdConnectProvider
             services.AddDbContext<AppInMemoryDbContext>(options =>
                 options.UseInMemoryDatabase("default"));
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<SteamUser, IdentityRole>(options =>
                 {
                     options.User.AllowedUserNameCharacters = null;
                 })
@@ -59,7 +59,7 @@ namespace SteamOpenIdConnectProvider
                 {
                     options.UserInteraction.LoginUrl = "/ExternalLogin";
                 })
-                .AddAspNetIdentity<IdentityUser>()
+                .AddAspNetIdentity<SteamUser>()
                 .AddProfileService<SteamProfileService>()
                 .AddInMemoryClients(IdentityServerConfig.GetClients(
                     Configuration["OpenID:ClientID"],

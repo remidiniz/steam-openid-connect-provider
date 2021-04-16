@@ -17,8 +17,8 @@ namespace SteamOpenIdConnectProvider.Profile
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly IUserClaimsPrincipalFactory<IdentityUser> _claimsFactory;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUserClaimsPrincipalFactory<SteamUser> _claimsFactory;
+        private readonly UserManager<SteamUser> _userManager;
 
         private async Task<GetPlayerSummariesResponse> GetPlayerSummariesAsync(IEnumerable<string> steamIds)
         {
@@ -33,8 +33,8 @@ namespace SteamOpenIdConnectProvider.Profile
         }
 
         public SteamProfileService(
-            UserManager<IdentityUser> userManager,
-            IUserClaimsPrincipalFactory<IdentityUser> claimsFactory,
+            UserManager<SteamUser> userManager,
+            IUserClaimsPrincipalFactory<SteamUser> claimsFactory,
             IConfiguration configuration, 
             HttpClient httpClient)
         {

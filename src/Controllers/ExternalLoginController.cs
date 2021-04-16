@@ -12,13 +12,13 @@ namespace SteamOpenIdConnectProvider.Controllers
     [Route("[action]")]
     public class ExternalLoginController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<SteamUser> _signInManager;
+        private readonly UserManager<SteamUser> _userManager;
         private readonly ILogger<ExternalLoginController> _logger;
 
         public ExternalLoginController(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<SteamUser> signInManager,
+            UserManager<SteamUser> userManager,
             ILogger<ExternalLoginController> logger)
         {
             _signInManager = signInManager;
@@ -63,7 +63,7 @@ namespace SteamOpenIdConnectProvider.Controllers
             var userName = info.Principal.FindFirstValue(ClaimTypes.Name);
             var userId = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            var user = new IdentityUser { UserName = userName, Id = userId };
+            var user = new SteamUser { UserName = userName, Id = userId, Picture = "https://www.csgo-stat-track.com/img/luckso.jpg" };
 
             _userManager.UserValidators.Clear();
 
