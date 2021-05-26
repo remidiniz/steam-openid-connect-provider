@@ -54,17 +54,17 @@ namespace SteamOpenIdConnectProvider
             };
         }
 
-        // // scopes define the API resources in your system
-        // // See: https://stackoverflow.com/a/44932837/3254208
-        // // https://docs.identityserver.io/en/latest/reference/api_resource.html
-        // // https://github.com/IdentityModel/IdentityModel/blob/main/src/JwtClaimTypes.cs
-        // // https://blogs.infinitesquare.com/posts/web/implementer-identityserver-4-dans-une-application-apdotnet-core-2-2 
-        // public static IEnumerable<ApiResource> GetApiResources()
-        // {
-        //     return new List<ApiResource>
-        //     {
-        //         new ApiResource("api", "Api", new[] { JwtClaimTypes.Subject, JwtClaimTypes.Name , JwtClaimTypes.NickName, JwtClaimTypes.Picture  })
-        //     };
-        // }
+        // scopes define the API resources in your system
+        // See: https://stackoverflow.com/a/44932837/3254208
+        // https://docs.identityserver.io/en/latest/reference/api_resource.html
+        // https://github.com/IdentityModel/IdentityModel/blob/main/src/JwtClaimTypes.cs
+        // https://blogs.infinitesquare.com/posts/web/implementer-identityserver-4-dans-une-application-apdotnet-core-2-2 
+        public static IEnumerable<ApiResource> GetApiResources()
+        {
+            return new List<ApiResource>
+            {
+                new ApiResource("api", "Api", new[] { JwtClaimTypes.Subject, JwtClaimTypes.Name , JwtClaimTypes.NickName, JwtClaimTypes.Picture  })
+            };
+        }
     }
 }

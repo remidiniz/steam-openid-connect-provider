@@ -69,8 +69,8 @@ namespace SteamOpenIdConnectProvider
                     Configuration["OpenID:AllowedHost"]))
                 .AddInMemoryPersistedGrants()
                 .AddDeveloperSigningCredential(true)
-                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources());
-                // .AddInMemoryApiResources(IdentityServerConfig.GetApiResources());
+                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
+                .AddInMemoryApiResources(IdentityServerConfig.GetApiResources());
 
             // Required for custom claims in our token using our custom IProfileService
             services.AddTransient<IProfileService, SteamProfileService>();
