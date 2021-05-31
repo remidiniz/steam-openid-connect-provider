@@ -41,7 +41,12 @@ namespace SteamOpenIdConnectProvider
                 AllowedCorsOrigins = new List<string>
                 {
                     allowedHost
-                }     
+                },
+
+                // IMPORTANT: Auth0 needs claims into Id Token so we can display name, picture directly (because it won't request /userinfo)
+                // http://docs.identityserver.io/en/latest/reference/client.html#token
+                // https://auth0.com/docs/connections/enterprise/oidc
+                AlwaysIncludeUserClaimsInIdToken = true
             };
         }
 
