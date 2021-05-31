@@ -37,7 +37,6 @@ namespace SteamOpenIdConnectProvider
 
                 // See: http://docs.identityserver.io/en/latest/quickstarts/6_aspnet_identity.html
                 // http://docs.identityserver.io/en/latest/topics/cors.html
-                // TODO: check if this is working....
                 AllowedCorsOrigins = new List<string>
                 {
                     allowedHost

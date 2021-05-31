@@ -10,8 +10,8 @@ FORK NOTES:
 
 - fixes `Hosting__PathBase`
 - fixes the `anti-forgery` cookie SameSite error for old browsers: https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
-- fixes `AllowedHost` ? (TODO: need to confirm this really needs a fix...)
-- fixes profile data (avatar, name) : TODO:
+- fixes `AllowedHost`
+- fixes profile data (avatar, name) for Auth0 : by enabling `AlwaysIncludeUserClaimsInIdToken`
 
 ## Setup
 
