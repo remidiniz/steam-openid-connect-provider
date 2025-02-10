@@ -2,14 +2,13 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace SteamOpenIdConnectProvider.Domains.IdentityServer
+namespace SteamOpenIdConnectProvider.Domains.IdentityServer;
+
+// This is completely in-memory, we do not need a persistent store.
+public class AppInMemoryDbContext : IdentityDbContext<IdentityUser>
 {
-    // This is completely in-memory, we do not need a persistent store.
-    public class AppInMemoryDbContext : IdentityDbContext<IdentityUser>
+    public AppInMemoryDbContext(DbContextOptions<AppInMemoryDbContext> options)
+        : base(options)
     {
-        public AppInMemoryDbContext(DbContextOptions<AppInMemoryDbContext> options)
-            : base(options)
-        {
-        }
     }
 }
