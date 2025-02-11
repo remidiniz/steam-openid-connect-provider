@@ -22,5 +22,5 @@ WORKDIR /app
 COPY --from=publish /app .
 EXPOSE 80
 
-HEALTHCHECK CMD curl --fail http://localhost/health || exit 1
+HEALTHCHECK CMD curl --fail http://localhost:8080/health || exit 1
 ENTRYPOINT ["dotnet", "SteamOpenIdConnectProvider.dll"]

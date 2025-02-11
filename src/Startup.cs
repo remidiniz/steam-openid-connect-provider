@@ -47,7 +47,7 @@ public class Startup
             .Configure<OpenIdConfig>(openIdConfig)
             .AddIdentityServer(options =>
             {
-                options.IssuerUri = "https://steam.auth.bytech.club";
+                options.IssuerUri = openIdConfig["IssuerUri"];
                 options.UserInteraction.LoginUrl = "/external-login";
                 options.UserInteraction.LogoutUrl = "/external-logout";
             })
