@@ -20,7 +20,7 @@ RUN apt-get update && \
 
 WORKDIR /app
 COPY --from=publish /app .
-EXPOSE 80
+EXPOSE 8080
 
 HEALTHCHECK CMD curl --fail http://localhost:8080/health || exit 1
 ENTRYPOINT ["dotnet", "SteamOpenIdConnectProvider.dll"]
