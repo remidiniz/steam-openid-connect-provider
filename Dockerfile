@@ -1,5 +1,5 @@
 # Etapa de Build
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:9.0 AS build
 
 WORKDIR /src
 COPY ["src/SteamOpenIdConnectProvider.csproj", "SteamOpenIdConnectProvider/"]
@@ -12,8 +12,8 @@ RUN dotnet build "SteamOpenIdConnectProvider.csproj" -c Release -o /app
 FROM build AS publish
 RUN dotnet publish "SteamOpenIdConnectProvider.csproj" -c Release -o /app
 
-# Etapa Final: Configurar Roteamento e Executar o .NET Core
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS base
+# Etapa Final: Configurar Roteamento e Executar o 
+FROM mcr.microsoft.com/dotnet/core/aspnet:9.0 AS base
 WORKDIR /app
 
 COPY --from=publish /app .
