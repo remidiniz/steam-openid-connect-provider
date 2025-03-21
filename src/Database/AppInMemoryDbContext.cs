@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SteamOpenIdConnectProvider.Profile.Models;
 
 namespace SteamOpenIdConnectProvider.Database
 {

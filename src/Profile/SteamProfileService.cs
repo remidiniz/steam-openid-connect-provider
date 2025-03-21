@@ -11,78 +11,77 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using SteamOpenIdConnectProvider.Profile.Models;
 
-namespace SteamOpenIdConnectProvider.Profile
+namespace SteamOpenIdConnectProvider.Profile;
+
+public class SteamProfileService : IProfileService
 {
-    public class SteamProfileService : IProfileService
+    private readonly HttpClient _httpClient;
+    private readonly IConfiguration _configuration;
+    private readonly IUserClaimsPrincipalFactory<SteamUser> _claimsFactory;
+    private readonly UserManager<SteamUser> _userManager;
+
+    private async Task<GetPlayerSummariesResponse> GetPlayerSummariesAsync(IEnumerable<string> steamIds)
     {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
-        private readonly IUserClaimsPrincipalFactory<SteamUser> _claimsFactory;
-        private readonly UserManager<SteamUser> _userManager;
+        const string baseurl = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
 
-        private async Task<GetPlayerSummariesResponse> GetPlayerSummariesAsync(IEnumerable<string> steamIds)
+        var applicationKey = _configuration["Authentication:Steam:ApplicationKey"];
+        var url = $"{baseurl}/?key={applicationKey}&steamids={string.Join(',', steamIds)}";
+
+        var res = await _httpClient.GetStringAsync(url);
+        var response = JsonConvert.DeserializeObject<SteamResponse<GetPlayerSummariesResponse>>(res);
+        return response.Response;
+    }
+
+    public SteamProfileService(
+        UserManager<SteamUser> userManager,
+        IUserClaimsPrincipalFactory<SteamUser> claimsFactory,
+        IConfiguration configuration, 
+        HttpClient httpClient)
+    {
+        _userManager = userManager;
+        _claimsFactory = claimsFactory;
+        _configuration = configuration;
+        _httpClient = httpClient;
+    }
+
+    public async Task GetProfileDataAsync(ProfileDataRequestContext context)
+    {
+        var sub = context.Subject.GetSubjectId();
+        var user = await _userManager.FindByIdAsync(sub);
+        var principal = await _claimsFactory.CreateAsync(user);
+
+        var claims = principal.Claims.ToList();
+        claims = claims.Where(claim => context.RequestedClaimTypes.Contains(claim.Type)).ToList();
+
+        const string steamUrl = "https://steamcommunity.com/openid/id/";
+        var steamId = sub.Substring(steamUrl.Length);
+
+        var userSummary = await GetPlayerSummariesAsync(new[] { steamId });
+        var player = userSummary.Players.FirstOrDefault();
+
+        if (player != null)
         {
-            const string baseurl = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
-
-            var applicationKey = _configuration["Authentication:Steam:ApplicationKey"];
-            var url = $"{baseurl}/?key={applicationKey}&steamids={string.Join(',', steamIds)}";
-
-            var res = await _httpClient.GetStringAsync(url);
-            var response = JsonConvert.DeserializeObject<SteamResponse<GetPlayerSummariesResponse>>(res);
-            return response.Response;
+            AddClaim(claims, "picture", player.AvatarFull);
+            AddClaim(claims, "nickname", player.PersonaName);
+            AddClaim(claims, "given_name", player.RealName);
+            AddClaim(claims, "website", player.ProfileUrl);
         }
 
-        public SteamProfileService(
-            UserManager<SteamUser> userManager,
-            IUserClaimsPrincipalFactory<SteamUser> claimsFactory,
-            IConfiguration configuration, 
-            HttpClient httpClient)
+        context.IssuedClaims = claims;
+    }
+
+    private void AddClaim(List<Claim> claims, string type, string value)
+    {
+        if (!string.IsNullOrEmpty(value))
         {
-            _userManager = userManager;
-            _claimsFactory = claimsFactory;
-            _configuration = configuration;
-            _httpClient = httpClient;
+            claims.Add(new Claim(type, value));
         }
+    }
 
-        public async Task GetProfileDataAsync(ProfileDataRequestContext context)
-        {
-            var sub = context.Subject.GetSubjectId();
-            var user = await _userManager.FindByIdAsync(sub);
-            var principal = await _claimsFactory.CreateAsync(user);
-
-            var claims = principal.Claims.ToList();
-            claims = claims.Where(claim => context.RequestedClaimTypes.Contains(claim.Type)).ToList();
-
-            const string steamUrl = "https://steamcommunity.com/openid/id/";
-            var steamId = sub.Substring(steamUrl.Length);
-
-            var userSummary = await GetPlayerSummariesAsync(new[] { steamId });
-            var player = userSummary.Players.FirstOrDefault();
-
-            if (player != null)
-            {
-                AddClaim(claims, "picture", player.AvatarFull);
-                AddClaim(claims, "nickname", player.PersonaName);
-                AddClaim(claims, "given_name", player.RealName);
-                AddClaim(claims, "website", player.ProfileUrl);
-            }
-
-            context.IssuedClaims = claims;
-        }
-
-        private void AddClaim(List<Claim> claims, string type, string value)
-        {
-            if (!string.IsNullOrEmpty(value))
-            {
-                claims.Add(new Claim(type, value));
-            }
-        }
-
-        public async Task IsActiveAsync(IsActiveContext context)
-        {
-            var sub = context.Subject.GetSubjectId();
-            var user = await _userManager.FindByIdAsync(sub);
-            context.IsActive = user != null;
-        }
+    public async Task IsActiveAsync(IsActiveContext context)
+    {
+        var sub = context.Subject.GetSubjectId();
+        var user = await _userManager.FindByIdAsync(sub);
+        context.IsActive = user != null;
     }
 }
